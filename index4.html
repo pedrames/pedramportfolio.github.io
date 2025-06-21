@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Machine</title>
+    <link href="https://fonts.googleapis.com/css?family=Faster+One|Monoton|Quicksand" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        #container {
+            margin-top: 50px;
+        }
+        h1 {
+            font-family: 'Monoton', cursive;
+            color: #ff0000;
+        }
+        .button {
+            font-family: 'Faster One', cursive;
+            font-size: 24px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #ffcc00;
+            border: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #ff9900;
+        }
+        p {
+            font-size: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>SLOT MACHINE</h1>
+        <input id="Play" class="button" type="button" value="Play" onclick="play();" />
+        <p id="spinResults"></p>
+        <p id="currentWinnings"></p>
+        <p id="currentMoney"></p>
+    </div>
+    <script>
+        var reel = ["cherry", "bar", "7", "JACKPOT", "orange", "lemon", "cash", "win", "grapes"];
+        var money = 500;
+
+        function randomSymbol(reel) {
+            reel1 = reel[Math.floor(Math.random() * reel.length)];
+            reel2 = reel[Math.floor(Math.random() * reel.length)];
+            reel3 = reel[Math.floor(Math.random() * reel.length)];
+            console.log(reel1, reel2, reel3);
+            updateReels(reel1, reel2, reel3);
+        }
+
+        function updateMoney(money) {
+            document.getElementById("currentMoney").innerHTML = "You have $" + money;
+            if (money < 10) {
+                document.getElementById("currentMoney").innerHTML = "You don't have enough money to play.";
+            }
+        }
+
+        function updateReels(reel1, reel2, reel3) {
+            document.getElementById("spinResults").innerHTML = "Results: " + reel1 + ", " + reel2 + ", " + reel3;
+        }
+
+        function updateWinnings(prize) {
+            document.getElementById("currentWinnings").innerHTML = prize;
+        }
+
+        function checkWin() {
+            var win = 0;
+            var prize = "";
+            if (reel1 == "JACKPOT" && reel1 == reel2 && reel2 == reel3) {
+                console.log("JACKPOT! win 1000");
+                prize = "JACKPOT! You won $1000!";
+                money += 990;
+            } else if (reel1 == reel2 && reel2 == reel3) {
+                console.log("win 100");
+                prize = "You won $100!";
+                money += 90;
+            } else if (reel1 == reel3 && reel1 != reel2) {
+                console.log("win 50");
+                money += 40;
+                prize = "You won $50!";
+            } else {
+                console.log("lose");
+                money -= 10;
+                prize = "You lost.";
+            }
+            console.log(money);
+            updateWinnings(prize);
+            updateMoney(money);
+        }
+
+        function play() {
+            if (money >= 10) {
+                randomSymbol(reel);
+                checkWin();
+            } else {
+                console.log("You don't have enough money to play.");
+            }
+        }
+
+        document.getElementById("currentMoney").innerHTML = "You have $" + money;
+        document.getElementById("spinResults").innerHTML = "";
+    </script>
+</body>
+</html>

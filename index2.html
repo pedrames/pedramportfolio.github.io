@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Shooter</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            font-family: Arial, sans-serif;
+        }
+
+        .game-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            overflow: hidden;
+            border: 2px solid white;
+            width: 600px;
+            height: 600px;
+            position: relative;
+        }
+
+        .game {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .spaceship {
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .laser {
+            width: 5px;
+            height: 20px;
+            background-color: red;
+            position: absolute;
+        }
+
+        .asteroid {
+            width: 40px;
+            height: 40px;
+            background-color: grey;
+            position: absolute;
+        }
+
+        .score {
+            color: white;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game">
+            <div class="spaceship" id="spaceship"></div>
+            <div class="score" id="score">Score: 0</div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const spaceship = document.getElementById('spaceship');
+            const game = document.querySelector('.game');
+            const scoreElement = document.getElementById('score');
+            let leftPosition = game.clientWidth / 2 - spaceship.clientWidth / 2;
+            let score = 0;
+
+            function moveSpaceship(event) {
+                if (event.key === 'ArrowLeft' && leftPosition > 0) {
+                    leftPosition -= 10;
+                    spaceship.style.left = leftPosition + 'px';
+                } else if (event.key === 'ArrowRight' && leftPosition < game.clientWidth - spaceship.clientWidth) {
+                    leftPosition += 10;
+                    spaceship.style.left = leftPosition + 'px';
+                }
+            }
+
+            function shootLaser() {
+                const laser = document.createElement('div');
+                laser.classList.add('laser');
+                laser.style.bottom = '50px';
+                laser.style.left = leftPosition + spaceship.clientWidth / 2 - 2.5 + 'px';
+                game.appendChild(laser);
+                moveLaser(laser);
+            }
+
+            function moveLaser(laser) {
+                let laserInterval = setInterval(() => {
+                    let laserBottom = parseInt(window.getComputedStyle(laser).bottom);
+                    if (laserBottom < game.clientHeight) {
+                        laser.style.bottom = laserBottom + 10 + 'px';
+                    } else {
+                        laser.remove();
+                        clearInterval(laserInterval);
+                    }
+                    checkCollision(laser, laserInterval);
+                }, 30);
+            }
+
+            function createAsteroid() {
+                const asteroid = document.createElement('div');
+                asteroid.classList.add('asteroid');
+                asteroid.style.left = Math.random() * (game.clientWidth - 40) + 'px';
+                asteroid.style.top = '0';
+                game.appendChild(asteroid);
+                moveAsteroid(asteroid);
+            }
+
+            function moveAsteroid(asteroid) {
+                let asteroidInterval = setInterval(() => {
+                    let asteroidTop = parseInt(window.getComputedStyle(asteroid).top);
+                    if (asteroidTop < game.clientHeight) {
+                        asteroid.style.top = asteroidTop + 5 + 'px';
+                    } else {
+                        asteroid.remove();
+                        clearInterval(asteroidInterval);
+                    }
+                }, 50);
+            }
+
+            function checkCollision(laser, laserInterval) {
+                const asteroids = document.querySelectorAll('.asteroid');
+                asteroids.forEach((asteroid) => {
+                    const laserRect = laser.getBoundingClientRect();
+                    const asteroidRect = asteroid.getBoundingClientRect();
+
+                    if (
+                        laserRect.left < asteroidRect.left + asteroidRect.width &&
+                        laserRect.left + laserRect.width > asteroidRect.left &&
+                        laserRect.top < asteroidRect.top + asteroidRect.height &&
+                        laserRect.top + laserRect.height > asteroidRect.top
+                    ) {
+                        laser.remove();
+                        asteroid.remove();
+                        clearInterval(laserInterval);
+                        score += 10;
+                        scoreElement.innerText = `Score: ${score}`;
+                    }
+                });
+            }
+
+            document.addEventListener('keydown', moveSpaceship);
+            document.addEventListener('keydown', (event) => {
+                if (event.key === ' ') {
+                    shootLaser();
+                }
+            });
+
+            setInterval(createAsteroid, 2000);
+        });
+    </script>
+</body>
+</html>
